@@ -38,7 +38,7 @@ import pandas as pd
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
-def get_video_comments(video_id, topic, api_key):
+def get_video_comments(video_id, api_key):
     """
     Fetches comments from a specified YouTube video.
 
@@ -85,7 +85,6 @@ def get_video_comments(video_id, topic, api_key):
 
                 # Append data to comments_data list
                 comments_data.append({
-                    "topic": topic,
                     "channel_title": channel_title,
                     "video_title": video_title,
                     "video_publish_year": video_publish_year,
@@ -123,19 +122,19 @@ def process_videos(input_df, api_key):
     - pd.DataFrame: Combined DataFrame of all comments scraped.
     """
     all_comments = []
-    unique_topics = input_df['Topic'].unique()
+    input_df['Published Date'] = pd.to_datetime(input_df['Published Date'])
+    publish_years = input_df['Published Date'].dt.year.unique()
 
-    for topic in unique_topics:
-        print(f"Processing videos under Topic: {topic}...")
-        topic_df = input_df[input_df['Topic'] == topic]
+    for year in publish_years:
+        print(f"Processing videos from Year: {year}...")
+        grouped_df = input_df[input_df['Published Date'].dt.year == year]
 
-        for url in topic_df['Link']:
-            video_id = url.split('v=')[1] if 'v=' in url else None
+        for video_id in grouped_df['Video ID']:
             if video_id:
-                comments_df = get_video_comments(video_id, topic, api_key)
+                comments_df = get_video_comments(video_id, api_key)
                 all_comments.append(comments_df)
             else:
-                print(f"Invalid video URL: {url}")
+                print(f"Invalid video ID: {video_id}")
 
     return pd.concat(all_comments, ignore_index=True)
 
@@ -151,7 +150,7 @@ def main():
         exit(1)
 
     # Load video links from CSV file
-    input_data_path = "../data/yt_video_links_clean.csv"
+    input_data_path = "../data/youtube_channel_political_videos.csv"
 
     try:
         input_df = pd.read_csv(input_data_path)
