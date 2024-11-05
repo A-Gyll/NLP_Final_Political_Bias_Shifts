@@ -32,8 +32,10 @@ def main():
     keywords = ["politics", "election", "government", "policy", "congress", "president"]
     query_string = "|".join(keywords)  # Create OR-separated keyword string
 
+    output_file = "../data/youtube_channel_political_videos.csv"
+
     # CSV file setup
-    with open("youtube_channel_political_videos.csv", "w", newline='', encoding="utf-8") as csvfile:
+    with open(output_file, "w", newline='', encoding="utf-8") as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(["Title", "Keyword Match", "Description", "Published Date", "Video ID", "Video URL", "Comment Count"])
 
@@ -79,7 +81,7 @@ def main():
             # Get the next page of results, if there are more
             request = youtube.search().list_next(request, response)
 
-    print("Data saved to youtube_channel_political_videos.csv")
+    print(f"Data saved to {output_file}")
 
 if __name__ == "__main__":
     main()
