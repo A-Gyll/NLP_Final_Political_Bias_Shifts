@@ -34,43 +34,33 @@ pip install pandas google-auth google-auth-oauthlib google-api-python-client pyt
 """
 
 import os
+import re
 import pandas as pd
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
-def get_video_comments(video_id, api_key):
+def get_video_comments(video_url, api_key):
     """
-    Fetches comments from a specified YouTube video.
+    Fetches all comments from a specified YouTube video given its URL.
 
     Parameters:
-    - video_id (str): ID of the YouTube video.
-    - topic (str): Topic associated with the video.
+    - video_url (str): URL of the YouTube video.
     - api_key (str): YouTube API key.
 
     Returns:
-    - pd.DataFrame: DataFrame containing comments and metadata.
+    - pd.DataFrame: DataFrame containing comments.
     """
-    comments_data = []
+    # Extract video ID from URL
+    video_id = re.search(r"v=([a-zA-Z0-9_-]{11})", video_url)
+    if not video_id:
+        raise ValueError("Invalid YouTube video URL.")
+    video_id = video_id.group(1)
 
-    # Initialize YouTube API client
+    comments_data = []
     youtube = build('youtube', 'v3', developerKey=api_key)
 
-    # Get video details
     try:
-        video_response = youtube.videos().list(
-            part='snippet',
-            id=video_id
-        ).execute()
-        video_info = video_response['items'][0]['snippet']
-        video_publish_year = video_info['publishedAt'][:4]
-        video_title = video_info['title']
-        channel_title = video_info['channelTitle']
-    except Exception as e:
-        print(f"Error fetching video details for video ID {video_id}: {e}")
-        return pd.DataFrame()  # Return empty DataFrame on error
-
-    # Retrieve comments
-    try:
+        # Retrieve comments
         comment_response = youtube.commentThreads().list(
             part='snippet,replies', videoId=video_id, maxResults=100
         ).execute()
@@ -85,15 +75,13 @@ def get_video_comments(video_id, api_key):
 
                 # Append data to comments_data list
                 comments_data.append({
-                    "channel_title": channel_title,
-                    "video_title": video_title,
-                    "video_publish_year": video_publish_year,
-                    "username": username,
+                    #"username": username,
+                    "video_id": video_id,
                     "comment": comment,
                     "comment_date": comment_date,
                 })
 
-            # Check for next page of comments
+            # Check for the next page of comments
             if 'nextPageToken' in comment_response:
                 comment_response = youtube.commentThreads().list(
                     part='snippet,replies',
@@ -104,38 +92,45 @@ def get_video_comments(video_id, api_key):
             else:
                 break
 
-    except Exception as e:
-        print(f"Error fetching comments for video ID {video_id}: {e}")
+        # Convert comments to DataFrame
+        return pd.DataFrame(comments_data)
 
-    # Convert comments_data to DataFrame
-    return pd.DataFrame(comments_data)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        print(f"Comments so far: {len(comment_date)} ...")
+        print(f"Returning collected comments so far ...")
+
+        return pd.DataFrame([])  # Return an empty DataFrame in case of errors
 
 def process_videos(input_df, api_key):
     """
-    Processes a list of YouTube video links by topic and scrapes comments.
+    Processes a list of YouTube video links and scrapes comments.
 
     Parameters:
-    - input_df (pd.DataFrame): DataFrame with columns 'Topic' and 'Link'.
+    - input_df (pd.DataFrame): DataFrame with columns 'Title', 'Date Posted', and 'Link'
     - api_key (str): YouTube API key.
 
     Returns:
     - pd.DataFrame: Combined DataFrame of all comments scraped.
     """
     all_comments = []
-    input_df['Published Date'] = pd.to_datetime(input_df['Published Date'])
-    publish_years = input_df['Published Date'].dt.year.unique()
 
-    for year in publish_years:
-        print(f"Processing videos from Year: {year}...")
-        grouped_df = input_df[input_df['Published Date'].dt.year == year]
+    # Ensure 'Date Posted' is in datetime format
+    input_df['Date Posted'] = pd.to_datetime(input_df['Date Posted'])
 
-        for video_id in grouped_df['Video ID']:
-            if video_id:
-                comments_df = get_video_comments(video_id, api_key)
-                all_comments.append(comments_df)
-            else:
-                print(f"Invalid video ID: {video_id}")
+    # Filter for videos posted in 2024 only
+    grouped_df = input_df[input_df['Date Posted'].dt.year == 2024]
 
+    print("Processing videos from the year 2024...")
+
+    for link in grouped_df['Link']:
+        if link:
+            comments_df = get_video_comments(link, api_key)
+            all_comments.append(comments_df)
+        else:
+            print(f"Invalid link: {link}")
+
+    # Combine all comments into a single DataFrame
     return pd.concat(all_comments, ignore_index=True)
 
 def main():
@@ -150,8 +145,8 @@ def main():
         exit(1)
 
     # Load video links from CSV file
-    input_data_path = "../data/youtube_channel_political_videos.csv"
-
+    channel_of_interest = 'CNN'
+    input_data_path = f"../data/{channel_of_interest}_links.csv"
     try:
         input_df = pd.read_csv(input_data_path)
         print(f"Loaded {len(input_df)} video links from {input_data_path}")
@@ -164,7 +159,7 @@ def main():
     print(f"Total comments scraped: {len(final_df)}")
 
     # Save the scraped comments to a CSV file
-    output_file = "../data/yt_comments_raw.csv"
+    output_file = f"../data/{channel_of_interest}_comments.csv"
     final_df.to_csv(output_file, index=False)
     print(f"Comments saved to {output_file}")
 
