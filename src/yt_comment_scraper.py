@@ -97,7 +97,7 @@ def get_video_comments(video_url, api_key):
 
     except Exception as e:
         print(f"An error occurred: {e}")
-        print(f"Comments so far: {len(comment_date)} ...")
+        print(f"Comments so far: {len(comments_data)} ...")
         print(f"Returning collected comments so far ...")
 
         return pd.DataFrame([])  # Return an empty DataFrame in case of errors
