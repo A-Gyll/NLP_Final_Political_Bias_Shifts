@@ -145,8 +145,8 @@ def main():
         exit(1)
 
     # Load video links from CSV file
-    channel_of_interest = 'CNN'
-    input_data_path = f"../data/{channel_of_interest}_links.csv"
+    channel_of_interest = 'Fox_Business'
+    input_data_path = f"../data/Raw Data/{channel_of_interest}_links.csv"
     try:
         input_df = pd.read_csv(input_data_path)
         print(f"Loaded {len(input_df)} video links from {input_data_path}")
