@@ -13,3 +13,5 @@ peft
 google-api-python-client
 python-dotenv
 
+scikit-learn
+

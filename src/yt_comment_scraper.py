@@ -134,8 +134,10 @@ def process_videos(input_df, api_key):
     return pd.concat(all_comments, ignore_index=True)
 
 def main():
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.realpath(__file__))
 
-    # Load environment variables from .env file
+    # Load environment variables from .env file located in the same directory as this script
     load_dotenv()  
 
     # Load API key from environment variable
@@ -145,8 +147,8 @@ def main():
         exit(1)
 
     # Load video links from CSV file
-    channel_of_interest = 'Fox_Business'
-    input_data_path = f"../data/Raw Data/{channel_of_interest}_links.csv"
+    channel_of_interest = 'CNN'
+    input_data_path = os.path.join(script_dir, f"../data/Raw Data/{channel_of_interest}_links.csv")
     try:
         input_df = pd.read_csv(input_data_path)
         print(f"Loaded {len(input_df)} video links from {input_data_path}")
@@ -159,7 +161,7 @@ def main():
     print(f"Total comments scraped: {len(final_df)}")
 
     # Save the scraped comments to a CSV file
-    output_file = f"../data/{channel_of_interest}_comments.csv"
+    output_file = os.path.join(script_dir, f"../data/Raw Data/{channel_of_interest}_comments.csv")
     final_df.to_csv(output_file, index=False)
     print(f"Comments saved to {output_file}")
 
