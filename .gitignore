@@ -166,3 +166,5 @@ cython_debug/
 .DS_Store
 
 **/Local Models/**
+
+**/llama_3_2_3b/checkpoints/**
