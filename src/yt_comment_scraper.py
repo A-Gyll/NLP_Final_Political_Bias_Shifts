@@ -100,12 +100,12 @@ class YouTubeCommentsScraper:
         """
         all_comments = []
         filtered_df = self.filter_videos(input_df)
+        links = list(filtered_df['Link'])
 
-        for link in filtered_df['Link']:
+        for count, link in enumerate(filtered_df['Link']):
+            print(f'Link #{count} | Url: {link}')
             comments_df = self.get_video_comments(video_url=link)
-            if len(comments_df) == 0:
-                break
-            else:
+            if len(comments_df) != 0:
                 all_comments.append(comments_df)
         if not all_comments:
             return pd.DataFrame([])
