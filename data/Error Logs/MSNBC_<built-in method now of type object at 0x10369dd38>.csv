@@ -1,0 +1,3 @@
+video_id,error
+DSIml1oHOJk,"<HttpError 404 when requesting https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&videoId=DSIml1oHOJk&maxResults=100&key=AIzaSyCwRzPBR1CvegG3d-jjMEuI65k1C4zMHeI&alt=json returned ""The video identified by the <code><a href=""/youtube/v3/docs/commentThreads/list#videoId"">videoId</a></code> parameter could not be found."". Details: ""[{'message': 'The video identified by the <code><a href=""/youtube/v3/docs/commentThreads/list#videoId"">videoId</a></code> parameter could not be found.', 'domain': 'youtube.commentThread', 'reason': 'videoNotFound', 'location': 'videoId', 'locationType': 'parameter'}]"">"
+9W6An5kLe6g,Quota Exceeded
