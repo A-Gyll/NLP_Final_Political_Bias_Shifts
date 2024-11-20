@@ -53,7 +53,7 @@ class YoutubeCommentScraper:
     
 class CommentScraperUtil:
   def load_video_ids(path_to_link_csv, start_date, most_recent_video_id=None):
-    links_df = pd.read_csv(path_to_link_csv)#, quoting=csv.QUOTE_ALL, escapechar='\\')
+    links_df = pd.read_csv(path_to_link_csv, quoting=csv.QUOTE_ALL, escapechar='\\')
     links_df['Date Posted'] = pd.to_datetime(links_df['Date Posted'], format='mixed')
     
     #links_df = links_df.sort_values(by='Date Posted')
@@ -75,7 +75,7 @@ class CommentScraperUtil:
   def get_earliest_video_id(path_to_comment_csv):
     if not os.path.exists(path_to_comment_csv):
         return None, None
-    comments_df = pd.read_csv(path_to_comment_csv)#, quoting=csv.QUOTE_ALL, escapechar='\\')
+    comments_df = pd.read_csv(path_to_comment_csv, quoting=csv.QUOTE_ALL, escapechar='\\')
     comments_df['comment_date'] = pd.to_datetime(comments_df['comment_date'], format='mixed', errors='coerce')
     
     # Get the last row of the dataframe

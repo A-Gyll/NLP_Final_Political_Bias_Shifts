@@ -67,3 +67,5 @@ def clean_comments(path_to_csv, save_path):
     df.to_csv(save_path, index=False)
     
     print((time.time() - time_start) / 60)
+
+    #TODO: Remove Duplicates
