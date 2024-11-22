@@ -1,3 +1,9 @@
+data/Cleaned Data/
+data/Error Logs/
+
+data/Raw Data/*.csv
+!data/Raw Data/*_links.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
