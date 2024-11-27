@@ -168,3 +168,7 @@ cython_debug/
 **/Local Models/**
 
 **/llama_3_2_3b/checkpoints/**
+
+**/data/**
+
+launch.json

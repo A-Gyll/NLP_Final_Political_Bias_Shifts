@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import regex as re
 import os
-import time
 import csv
+import glob
 
 
 #https://gist.github.com/Alex-Just/e86110836f3f93fe7932290526529cd1
@@ -25,15 +25,17 @@ EMOJI_PATTERN = re.compile(
 )
 
 def clean_comments(path_to_csv, save_path):
-    time_start = time.time()
-    df = pd.read_csv(path_to_csv,encoding='utf-8')
+    df = pd.read_csv(path_to_csv, quoting=csv.QUOTE_ALL, escapechar='\\')
+    print(f'Total Comments (uncleaned): {len(df)}')
 
     df['comment'] = df['comment'].astype(str)
-    df['comment'] = df['comment'].apply(lambda x: re.sub(r'https?:\/\/\S+', '', x))
+
+    df = df.drop_duplicates(subset=['username', 'comment', 'video_id'])
+
     df['comment'] = df['comment'].apply(lambda x: re.sub(r'https?:\/\/\S+', '', x)) # remove links
     df['comment'] = df['comment'].apply(lambda x: re.sub(r"www\.[a-z]?\.?(com)+|[a-z]+\.(com)", '', x)) #remove links
 
-    # leave emojis in for now since llama's tokenizer can handle it
+    # leave emojis in for now since tokenizer can handle it
     #df['comment'] = df['comment'].apply(lambda x: re.sub(EMOJI_PATTERN,'',x)) #remove emojis
 
     df['comment'] = df['comment'].apply(lambda x: re.sub(r"(\x5Co\x2F)",'',x)) #remove \o/ emoji
@@ -61,11 +63,26 @@ def clean_comments(path_to_csv, save_path):
     df['comment'] = df['comment'].apply(lambda x: re.sub(r"<br>", '\x20', x))
     df['comment'] = df['comment'].apply(lambda x: re.sub(r"\x20+", '\x20', re.sub(r"\u000a+|\u000d+|\u2028+|\u2029+", '\x20', x)))
 
-    df = df[df['comment'].apply(lambda x: len(x.split()) >= 15)] # remove comments that are less than 15 words long
+    df = df[df['comment'].apply(lambda x: len(x.split()) >= 25)] # remove comments that are less than 15 words long
     
+    print(f'Total Cleaned Comments: {len(df)}')
 
     df.to_csv(save_path, index=False)
     
-    print((time.time() - time_start) / 60)
 
-    #TODO: Remove Duplicates
+def merge_comment_csvs(path_to_csv_dir, data_name, save_path):
+    pattern = os.path.join(path_to_csv_dir, f"{data_name}_comments_*.csv")
+    csv_files = sorted(glob.glob(pattern), key=lambda x: int(x.split('_')[-1].split('.')[0]))
+
+    loaded_csvs = [pd.read_csv(file, quoting=csv.QUOTE_ALL, escapechar='\\') for file in csv_files]
+
+    print(f'Pre Merge Total Comments: {sum(len(df) for df in loaded_csvs)}')
+    
+    merged_df = pd.concat(
+        loaded_csvs,
+        ignore_index=True
+    )
+
+    print(f'Post Merge Total Comments: {len(merged_df)}')
+   
+    merged_df.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL, escapechar='\\')
