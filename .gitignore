@@ -171,12 +171,11 @@ cython_debug/
 # Other
 .DS_Store
 
+checkpoint-*/
+
 **/Local Models/**
 
-**/llama_3_2_3b/checkpoints/**
 
 **/data/**
 
-**/fine_tuned_llms/**
-src/LLMs/local_models/**
 launch.json

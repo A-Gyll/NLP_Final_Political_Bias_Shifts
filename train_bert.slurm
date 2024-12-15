@@ -23,4 +23,4 @@
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 
 source env.sh
-time python ./src/LLMs/fine_tune_bert_slurm.py -d "data/Sub_samples/CNN_2024-09-02T00:00:00+00:00.csv"
+time python ./src/LLMs/fine_tune_bert_slurm.py -d "data/Cleaned Data/CNN_comments_clean.csv" -e "test_experiment"

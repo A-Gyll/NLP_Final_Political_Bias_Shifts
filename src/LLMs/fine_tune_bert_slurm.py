@@ -10,7 +10,7 @@ from datetime import datetime
 def main(args):
 
     #current_dir = os.path.dirname(os.path.abspath(__file__))
-
+    experiment_name = args.experiment_name
     model_name = "FacebookAI_roberta-large" 
     model_path = f"src/Local Models/{model_name}"                                              #                                                      
                                                                                             #
@@ -37,7 +37,7 @@ def main(args):
     }                                                                                         #
                                                                                             #
     cur_datetime = datetime.now().strftime("%Y-%m-%d %H-%M-%S")                               #
-    checkpoint_dir = f"fine_tuned_llms/{model_name}/checkpoints/{cur_datetime}"        #
+    checkpoint_dir = f"fine_tuned_llms/{model_name}/checkpoints/{experiment_name}_{cur_datetime}"
     metrics_dir = f"{checkpoint_dir}/metrics.json"                                              #                                                                                          
                                                                                             #
     training_args_dict = {                                                                    #                 
@@ -70,7 +70,7 @@ def main(args):
 
     seed = 210
     data = pd.read_csv(args.data_path)  
-    comments = data["comment"].astype(str).sample(frac=0.1, random_state=seed)
+    #comments = data["comment"].astype(str).sample(frac=0.1, random_state=seed)
 
     train_comments, test_comments = train_test_split(comments, test_size=0.3, random_state=seed)
     val_comments, test_comments = train_test_split(test_comments, test_size=0.5, random_state=seed)
@@ -134,6 +134,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fine Tune Bert Slurm')
 
     parser.add_argument('-d', '--data_path',   help='path to dataset', required=True)
+    parser.add_argument('-e', '--experiment_name',   help='name of experiment', required=True)
     args = parser.parse_args()
 
     main(args)
