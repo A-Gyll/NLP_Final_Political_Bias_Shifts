@@ -15,4 +15,5 @@ python-dotenv
 
 scikit-learn
 matplotlib
-
+bitsandbytes
+setuptools

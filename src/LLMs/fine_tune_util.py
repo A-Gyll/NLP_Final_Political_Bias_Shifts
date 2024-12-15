@@ -2,7 +2,11 @@ import torch
 from matplotlib import pyplot as plt
 import numpy as np
 import os
-
+import random
+from transformers import Trainer
+import pandas as pd
+import json
+import math
 
 def preprocess_logits_for_metrics(logits, labels):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -17,6 +21,16 @@ def preprocess_logits_for_metrics(logits, labels):
 
     return loss
 
+def preprocess_logits_for_metrics_mlm(logits, labels):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logits = logits.to(device).float()
+    labels = labels.to(device).long()
+
+    loss_fct = torch.nn.CrossEntropyLoss()
+    loss = loss_fct(logits.view(-1, logits.size(-1)), labels.view(-1))
+
+    return loss
+
 # this is causing massive memory usage because it accumulates all of the tensors before evaluating them (dumb!), there is a fix here that we have to implement
     #https://discuss.huggingface.co/t/cuda-out-of-memory-when-using-trainer-with-compute-metrics/2941/12 - morenolq's answer
 def compute_metrics(eval_preds):
@@ -25,11 +39,11 @@ def compute_metrics(eval_preds):
         losses = torch.tensor(losses, device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
 
     total_loss = torch.sum(losses)  
-    perplexity = torch.exp(total_loss / len(losses))  
+    perplexity = math.exp(total_loss.item() / len(losses))  
 
     return {
         "eval_loss": total_loss.item()/ len(losses),
-        "perplexity": perplexity.item(),
+        "perplexity": perplexity,
     }
 
 def token_length_histogram(dataset, split_name):
@@ -103,3 +117,27 @@ def save_metrics(data, save_path):
 
     with open(save_path, "w") as json_file:
         json.dump(save_data, json_file, indent=4)
+
+
+
+# https://discuss.huggingface.co/t/evaluate-subset-of-data-during-training/10952/6
+class EvalSampleDatasetTrainer(Trainer):
+    def __init__(self, *args, eval_sample_size_proportion=.1, seed = 42, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.eval_sample_size_proportion = eval_sample_size_proportion
+        self.seed = seed
+        if self.seed is not None:
+            random.seed(self.seed)
+
+    def get_eval_dataloader(self, eval_dataset=None):
+        '''
+        Samples the evaluation dataset and returns a subset 
+        of size self.eval_sample_size.
+        '''
+        if eval_dataset is None:
+            eval_dataset = self.eval_dataset
+        total_size = len(eval_dataset)
+        sample_size = int(total_size * self.eval_sample_size_proportion)
+        idxs = random.sample(range(total_size), sample_size)
+        eval_subset = eval_dataset.select(idxs)
+        return super().get_eval_dataloader(eval_subset)
