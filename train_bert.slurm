@@ -11,7 +11,7 @@
 #SBATCH --partition=gpu   # partition
 #SBATCH --mem=32G   # memory
 #SBATCH -J "Train Bert"   # job name
-#SBATCH --mail-user=bhx5gh@virginia.edu   # email address
+#SBATCH --mail-user=ujx4ab@virginia.edu   # email address
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
@@ -23,4 +23,4 @@
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 
 source env.sh
-time python ./src/LLMs/fine_tune_bert_slurm.py -d "data/Cleaned Data/CNN_comments_clean.csv"
+time python ./src/LLMs/fine_tune_bert_slurm.py -d "data/Sub_samples/CNN_2024-09-02T00:00:00+00:00.csv"

@@ -178,5 +178,5 @@ cython_debug/
 **/data/**
 
 **/fine_tuned_llms/**
-
+src/LLMs/local_models/**
 launch.json
