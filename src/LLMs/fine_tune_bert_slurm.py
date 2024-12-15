@@ -70,7 +70,7 @@ def main(args):
 
     seed = 210
     data = pd.read_csv(args.data_path)  
-    comments = data["comment"].astype(str).sample(frac=0.1, random_state=seed)
+    #comments = data["comment"].astype(str).sample(frac=0.1, random_state=seed)
 
     train_comments, test_comments = train_test_split(comments, test_size=0.3, random_state=seed)
     val_comments, test_comments = train_test_split(test_comments, test_size=0.5, random_state=seed)
