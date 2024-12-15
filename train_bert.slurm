@@ -2,7 +2,7 @@
 
 #Submit this script with: sbatch train_bert.slurm
 
-#SBATCH --time=1:00:00   # job time limit
+#SBATCH --time=10:00:00   # job time limit
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --ntasks-per-node=1   # number of tasks per node
 #SBATCH --cpus-per-task=1   # number of CPU cores per task
