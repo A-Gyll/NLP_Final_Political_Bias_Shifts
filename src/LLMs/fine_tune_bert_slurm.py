@@ -61,7 +61,7 @@ def main(args):
     "eval_on_start": True,     
     "save_safetensors":False,
     "warmup_steps": 100,
-    "save_total_limit": 3, # only keeping best 3   
+    "save_total_limit": 1, # only keeping best 3   
     "optim": "adamw_torch",
     "weight_decay": 0.1938839909671577,
     #"ddp_backend": "nccl",     
