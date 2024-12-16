@@ -1,0 +1,9 @@
+source: "Neutral"
+test: "model_2_a"
+file_path: "/home/ujx4ab/ondemand/NLP_Final_Political_Bias_Shifts/data/Cleaned Data/Combined_Neutral_comments_clean.csv"
+output_dir: "/home/ujx4ab/ondemand/NLP_Final_Political_Bias_Shifts/data/Sub_samples"
+number_of_comments: 200000
+timestamps:
+  - "2024-04-14T00:00:00Z"
+  - "2024-08-11T00:00:00Z"
+time_range: 2

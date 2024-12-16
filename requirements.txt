@@ -8,12 +8,17 @@ pandas
 transformers
 datasets
 peft
+torch
 
 # For the youtube link & comment scrapper
 google-api-python-client
 python-dotenv
-
 scikit-learn
 matplotlib
 bitsandbytes
 setuptools
+
+# other
+pyyaml
+python-dateutil
+matplotlib

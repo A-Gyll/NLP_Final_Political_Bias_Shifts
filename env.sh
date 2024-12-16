@@ -1,4 +1,3 @@
-module purge
 module load gcc/11.4.0 openmpi/4.1.4 python/.3.11.4
 #export PYTHONPATH=$(pwd):$PYTHONPATH
 

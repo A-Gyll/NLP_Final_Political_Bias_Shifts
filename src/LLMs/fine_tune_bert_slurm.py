@@ -8,10 +8,10 @@ from fine_tune_util import EvalSampleDatasetTrainer, compute_metrics, preprocess
 from datetime import datetime
 
 def main(args):
-
     #current_dir = os.path.dirname(os.path.abspath(__file__))
+    print(args)
     experiment_name = args.experiment_name
-    model_name = "FacebookAI_roberta-large" 
+    model_name = "FacebookAI_roberta-large"
     model_path = f"src/Local Models/{model_name}"                                              #                                                      
                                                                                             #
     from_pretrained_params_dict = {                                                           #
@@ -37,15 +37,16 @@ def main(args):
     }                                                                                         #
                                                                                             #
     cur_datetime = datetime.now().strftime("%Y-%m-%d %H-%M-%S")                               #
-    checkpoint_dir = f"fine_tuned_llms/{model_name}/checkpoints/{experiment_name}_{cur_datetime}"
+    checkpoint_dir = f"fine_tuned_llms/{model_name}/checkpoints/{experiment_name}/{cur_datetime}"
     metrics_dir = f"{checkpoint_dir}/metrics.json"                                              #                                                                                          
                                                                                             #
     training_args_dict = {                                                                    #                 
     "output_dir":checkpoint_dir,                                                            #                              
     "per_device_train_batch_size":96, # using A100 gpu, not sure if rivanna can handle more,  #                                                             
     "per_device_eval_batch_size":96,                                                         #                                 
-    "num_train_epochs":5,       
-    "evaluation_strategy":"steps",                                                          #                                
+    "num_train_epochs":5,    
+    # "max_steps": 1,   
+    "eval_strategy":"steps",                                                          #                                
     "save_strategy":"best",                                                                #                          
     "eval_steps":150,                                                                        #                  
     "save_steps":150,                                                                     #                                
@@ -55,12 +56,14 @@ def main(args):
     "logging_strategy": "steps" , 
     "logging_steps": 150,                                                         #                            
     "fp16":True, 
-    "learning_rate": 1e-4,    
+    "learning_rate": 1.1821692730403184e-05,    
     "lr_scheduler_type":'constant',
     "eval_on_start": True,     
     "save_safetensors":False,
     "warmup_steps": 100,
     "save_total_limit": 3, # only keeping best 3   
+    "optim": "adamw_torch",
+    "weight_decay": 0.1938839909671577,
     #"ddp_backend": "nccl",     
     # "torch_compile":True,                                                                 #                                                         #                                            
     }                                                                                         # 
@@ -70,6 +73,7 @@ def main(args):
 
     seed = 210
     data = pd.read_csv(args.data_path)  
+    comments = data['comment'].astype(str)
     #comments = data["comment"].astype(str).sample(frac=0.1, random_state=seed)
 
     train_comments, test_comments = train_test_split(comments, test_size=0.3, random_state=seed)
@@ -84,6 +88,8 @@ def main(args):
         "validation": val_dataset,
         "test": test_dataset
     })
+
+    print("Is CUDA available:", torch.cuda.is_available())
 
     tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast = True)
     model = AutoModelForMaskedLM.from_pretrained(**from_pretrained_params_dict)

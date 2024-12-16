@@ -1,0 +1,8 @@
+source: "Fox"
+test: "model_3_a"
+file_path: "/home/ujx4ab/ondemand/NLP_Final_Political_Bias_Shifts/data/Cleaned Data/Fox_News_comments_clean.csv"
+output_dir: "/home/ujx4ab/ondemand/NLP_Final_Political_Bias_Shifts/data/Sub_samples"
+number_of_comments: 200000
+timestamps:
+  - "2024-09-22T00:00:00Z"
+time_range: 2
